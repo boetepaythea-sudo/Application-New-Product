@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="id">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>PO Mobile App</title>
+
+        <!-- JSPDF & autoTable -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+
+        <style>
+            /* ---------- BODY & CONTAINER ---------- */
+            body {
+                margin: 0;
+                font-family: system-ui;
+                background: #f2f4f7 url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1050&q=80') no-repeat center center fixed;
+                background-size: cover;
+            }
+
+            .container {
+                padding: 15px;
+                max-width: 480px;
+                /* Konten tidak full layar HP */
+                margin: 0 auto;
+                /* Center di layar */
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 12px;
+            }
+
+            /* ---------- HEADER ---------- */
+            .header {
+                background: #1565c0;
+                color: #fff;
+                padding: 15px;
+                text-align: center;
+                font-size: 18px;
+                border-radius: 12px 12px 0 0;
+                font-weight: 600;
+            }
+
+            /* ---------- CARD ---------- */
+            .card {
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 12px;
+                padding: 15px;
+                margin-bottom: 15px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, .1);
+            }
+
+            /* ---------- LABEL & INPUT ---------- */
+            label {
+                font-weight: 600;
+                margin-top: 10px;
+                display: block;
+            }
+
+            input,
+            textarea,
+            button,
+            select {
+                width: 100%;
+                padding: 12px;
+                margin-top: 5px;
+                border-radius: 8px;
+                border: 1px solid #ccc;
+                font-size: 14px;
+                box-sizing: border-box;
+            }
+
+            textarea {
+                resize: none;
+            }
+
+            /* ---------- BUTTON ---------- */
+            button {
+                background: #1565c0;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+                margin-top: 10px;
+                font-weight: 600;
+            }
+
+            button.secondary {
+                background: #eee;
+                color: #000;
+            }
+
+            /* ---------- ERROR ---------- */
+            .error {
+                color: #d32f2f;
+                font-size: 12px;
+                margin-top: 3px;
+            }
+
+            /* ---------- PHOTO GRID ---------- */
+            .photo-grid {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+                margin-top: 8px;
+            }
+
+            .photo-grid img {
+                width: 60px;
+                height: 60px;
+                border-radius: 6px;
+                border: 1px solid #ccc;
+                object-fit: cover;
+            }
+
+            /* ---------- TABLE ---------- */
+            .table-wrap {
+                overflow-x: auto;
+                margin-top: 10px;
+            }
+
+            table {
+                width: 100%;
+                min-width: 900px;
+                border-collapse: collapse;
+            }
+
+            th,
+            td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                font-size: 13px;
+                text-align: center;
+                vertical-align: middle;
+            }
+
+            th {
+                background: #f5f5f5;
+            }
+
+            /* ---------- TABLE IMAGE ---------- */
+            td img {
+                width: 55px;
+                height: 55px;
+                border-radius: 4px;
+                object-fit: cover;
+            }
+
+            /* ---------- ACTION BUTTON ---------- */
+            .action-btn {
+                cursor: pointer;
+                font-size: 18px;
+                margin: 0 4px;
+            }
+
+            /* ---------- HIDDEN ---------- */
+            .hidden {
+                display: none;
+            }
+
+            /* ---------- RESPONSIVE MOBILE ---------- */
+            @media screen and (max-width:500px) {
+                .container {
+                    padding: 10px;
+                }
+
+                input,
+                textarea,
+                button,
+                select {
+                    padding: 10px;
+                    font-size: 13px;
+                }
+
+                .photo-grid img {
+                    width: 50px;
+                    height: 50px;
+                }
+
+                td img {
+                    width: 45px;
+                    height: 45px;
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <div class="header">📦 PO Mobile App</div>
+        <div class="container">
+
+            <!-- FORM INPUT -->
+            <div class="card">
+                <label>Vendor *</label>
+                <input id="vendor">
+                <div id="errVendor" class="error"></div>
+
+                <label>No PO *</label>
+                <input id="noPO">
+                <div id="errPO" class="error"></div>
+
+                <label>Item *</label>
+                <input id="item">
+                <div id="errItem" class="error"></div>
+
+                <label>Description *</label>
+                <textarea id="desc" rows="3"></textarea>
+                <div id="errDesc" class="error"></div>
+
+                <label>Capture Foto (Kamera)</label>
+                <input type="file" id="cameraInput" accept="image/*" capture="environment">
+
+                <label>Upload Foto dari Galeri (Max 5 Foto)</label>
+                <input type="file" id="galleryInput" accept="image/*" multiple>
+
+                <div class="photo-grid" id="photoPreview"></div>
+                <div id="errPhoto" class="error"></div>
+
+                <button onclick="savePO()">💾 Simpan PO</button>
+                <button class="secondary" onclick="exportPDF()">📄 Export PDF</button>
+            </div>
+
+            <!-- FILTER -->
+            <div class="card hidden" id="filterCard">
+                <label>Pilih Vendor</label>
+                <select id="vendorSelect" onchange="renderTable()">
+                    <option value="">-- Semua Vendor --</option>
+                </select>
+
+                <label>Pilih PO</label>
+                <select id="poSelect" onchange="renderTable()">
+                    <option value="">-- Semua PO --</option>
+                </select>
+            </div>
+
+            <!-- TABEL HASIL INPUT -->
+            <div class="card hidden" id="resultCard">
+                <b>Data PO</b>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Vendor</th>
+                                <th>PO</th>
+                                <th>Item</th>
+                                <th>Description</th>
+                                <th>Image 1</th>
+                                <th>Image 2</th>
+                                <th>Image 3</th>
+                                <th>Image 4</th>
+                                <th>Image 5</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="poTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <script>
+            let photos = [];
+            let editIndex = null;
+            const maxPhoto = 5;
+
+            const getData = () => JSON.parse(localStorage.getItem("poData") || "[]");
+            const setData = d => localStorage.setItem("poData", JSON.stringify(d));
+
+            const vendorInput = document.getElementById("vendor");
+            const noPOInput = document.getElementById("noPO");
+            const itemInput = document.getElementById("item");
+            const descInput = document.getElementById("desc");
+            const photoPreview = document.getElementById("photoPreview");
+
+            const vendorSelect = document.getElementById("vendorSelect");
+            const poSelect = document.getElementById("poSelect");
+            const resultCard = document.getElementById("resultCard");
+            const filterCard = document.getElementById("filterCard");
+            const poTable = document.getElementById("poTable");
+
+            const errVendor = document.getElementById("errVendor");
+            const errPO = document.getElementById("errPO");
+            const errItem = document.getElementById("errItem");
+            const errDesc = document.getElementById("errDesc");
+            const errPhoto = document.getElementById("errPhoto");
+
+            // Camera & Gallery
+            document.getElementById("cameraInput").addEventListener("change", handleFiles);
+            document.getElementById("galleryInput").addEventListener("change", handleFiles);
+
+            function handleFiles(e) {
+                const files = [...e.target.files];
+                files.forEach(file => {
+                    if (photos.length >= maxPhoto) { alert("Maksimal 5 foto"); return; }
+                    const reader = new FileReader();
+                    reader.onload = () => { photos.push(reader.result); renderPhotos(); }
+                    reader.readAsDataURL(file);
+                });
+                e.target.value = "";
+            }
+
+            function renderPhotos() {
+                photoPreview.innerHTML = "";
+                photos.forEach((img, i) => photoPreview.innerHTML += `<img src="${img}" data-index="${i}">`);
+            }
+
+            // Validation
+            function validate() {
+                errVendor.innerText = errPO.innerText = errItem.innerText = errDesc.innerText = errPhoto.innerText = "";
+                let ok = true;
+                if (!vendorInput.value) { errVendor.innerText = "Vendor wajib diisi"; ok = false; }
+                if (!noPOInput.value) { errPO.innerText = "PO wajib diisi"; ok = false; }
+                if (!itemInput.value) { errItem.innerText = "Item wajib diisi"; ok = false; }
+                if (!descInput.value) { errDesc.innerText = "Description wajib diisi"; ok = false; }
+                if (photos.length === 0) { errPhoto.innerText = "Minimal 1 foto"; ok = false; }
+                return ok;
+            }
+
+            // Save PO
+            function savePO() {
+                if (!validate()) return;
+                let d = getData();
+                let po = { vendor: vendorInput.value, noPO: noPOInput.value, item: itemInput.value, desc: descInput.value, photos: [...photos] };
+                editIndex !== null ? (d[editIndex] = po) : d.push(po);
+                setData(d);
+                editIndex = null;
+                resetForm();
+                renderTable();
+            }
+
+            // Reset Form
+            function resetForm() {
+                vendorInput.value = noPOInput.value = itemInput.value = descInput.value = "";
+                photos = [];
+                renderPhotos();
+            }
+
+            // Render Table & Update Select
+            function renderTable() {
+                let d = getData();
+                if (d.length === 0) { filterCard.classList.add("hidden"); resultCard.classList.add("hidden"); return; }
+                filterCard.classList.remove("hidden");
+                resultCard.classList.remove("hidden");
+
+                // Update select options
+                const vendors = [...new Set(d.map(x => x.vendor))];
+                const pos = [...new Set(d.map(x => x.noPO))];
+
+                const currentVendor = vendorSelect.value;
+                const currentPO = poSelect.value;
+
+                vendorSelect.innerHTML = '<option value="">-- Semua Vendor --</option>';
+                vendors.forEach(v => {
+                    const selected = v === currentVendor ? 'selected' : '';
+                    vendorSelect.innerHTML += `<option value="${v}" ${selected}>${v}</option>`;
+                });
+
+                poSelect.innerHTML = '<option value="">-- Semua PO --</option>';
+                pos.forEach(p => {
+                    const selected = p === currentPO ? 'selected' : '';
+                    poSelect.innerHTML += `<option value="${p}" ${selected}>${p}</option>`;
+                });
+
+                // Filter data based on select
+                const filterV = vendorSelect.value;
+                const filterPO = poSelect.value;
+                const f = d.filter(x => (!filterV || x.vendor === filterV) && (!filterPO || x.noPO === filterPO));
+
+                // Render Table
+                poTable.innerHTML = "";
+                f.forEach((p, i) => {
+                    let imgs = "";
+                    for (let x = 0; x < 5; x++) imgs += `<td>${p.photos[x] ? `<img src="${p.photos[x]}">` : ""}</td>`;
+                    poTable.innerHTML += `
+      <tr>
+        <td>${p.vendor}</td>
+        <td>${p.noPO}</td>
+        <td>${p.item}</td>
+        <td>${p.desc}</td>
+        ${imgs}
+        <td>
+          <span class="action-btn" onclick="editPO(${i})">✏️</span>
+          <span class="action-btn" onclick="deletePO(${i})">🗑</span>
+        </td>
+      </tr>`;
+                });
+            }
+
+            // Edit/Delete
+            function editPO(i) {
+                let p = getData()[i];
+                vendorInput.value = p.vendor;
+                noPOInput.value = p.noPO;
+                itemInput.value = p.item;
+                descInput.value = p.desc;
+                photos = [...p.photos];
+                renderPhotos();
+                editIndex = i;
+            }
+
+            function deletePO(i) {
+                let d = getData();
+                d.splice(i, 1);
+                setData(d);
+                renderTable();
+            }
+
+            // Export PDF
+            function exportPDF() {
+                const vendor = vendorSelect.value;
+                const poNo = poSelect.value;
+
+                let data = getData();
+                if (vendor) data = data.filter(x => x.vendor === vendor);
+                if (poNo) data = data.filter(x => x.noPO === poNo);
+
+                if (data.length === 0) return alert("Tidak ada data untuk di-export");
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF("l", "mm", "a4");
+                doc.setFontSize(14);
+                doc.text(`Sample Vendor : ${vendor || "Semua Vendor"}`, 10, 10);
+                doc.text(`PO : ${poNo || "Semua PO"}`, 10, 20);
+
+                const head = ["Vendor", "PO", "Item", "Description", "Image 1", "Image 2", "Image 3", "Image 4", "Image 5"];
+                const body = data.map(d => {
+                    let row = [d.vendor, d.noPO, d.item, d.desc];
+                    for (let i = 0; i < 5; i++) row.push("");
+                    return row;
+                });
+
+                const imageSize = 28; // ukuran square image
+
+                doc.autoTable({
+                    startY: 30,
+                    head: [head],
+                    body,
+                    styles: { fontSize: 9, cellWidth: "wrap", valign: 'middle', minCellHeight: imageSize + 4 },
+                    didDrawCell: function (dataTableCell) {
+                        const rowIndex = dataTableCell.row.index;
+                        const colIndex = dataTableCell.column.index;
+                        const rowSection = dataTableCell.row.section;
+
+                        if (rowSection === 'body' && colIndex >= 4 && colIndex <= 8) {
+                            const imgIdx = colIndex - 4;
+                            const imgData = data[rowIndex].photos[imgIdx];
+                            if (imgData) {
+                                const { cell } = dataTableCell;
+                                const x = cell.x + (cell.width - imageSize) / 2;
+                                const y = cell.y + (cell.height - imageSize) / 2;
+                                doc.addImage(imgData, 'JPEG', x, y, imageSize, imageSize);
+                            }
+                        }
+                    }
+                });
+
+                doc.save(`PO_export.pdf`);
+            }
+
+            // Inisialisasi tabel
+            renderTable();
+        </script>
+
+    </body>
+
+</html>
