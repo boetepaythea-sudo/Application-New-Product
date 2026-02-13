@@ -1528,9 +1528,9 @@
                 // Reset counter jika login berhasil
                 loginAttempts = 0;
 
-                localStorage.setItem("isLogin", "true");
-                localStorage.setItem("username", user);
-                
+                localStorage.removeItem("isLogin");
+                localStorage.removeItem("username");
+
                 error.style.display = "none";
                 document.getElementById("loginOverlay").style.display = "none";
 
@@ -1581,7 +1581,7 @@
 
         // ===== CEK LOGIN SAAT LOAD =====
         document.addEventListener("DOMContentLoaded", function () {
-            const isLogin = sessionStorage.getItem("isLogin");
+            const isLogin = localStorage.getItem("isLogin");
             const loginOverlay = document.getElementById("loginOverlay");
             const welcomeOverlay = document.getElementById("welcomeOverlay");
 
