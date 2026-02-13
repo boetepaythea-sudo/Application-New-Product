@@ -6,7 +6,6 @@
     </head>
 
     <body>
-
         <div id="loginOverlay">
             <h2>Login</h2>
             <input id="loginUser" placeholder="Username"><br>
@@ -15,46 +14,53 @@
         </div>
 
         <div id="menu" style="display:none;">
-            <button onclick="gotoApp2()">Open App2</button>
+            <p id="statusLogin"></p>
+            <button onclick="gotoApp2()">Buka App2</button>
             <button onclick="logout()">Logout</button>
         </div>
 
         <script>
-            // Login Function
+            // LOGIN
             function login() {
-                const user = document.getElementById("loginUser").value;
-                const pass = document.getElementById("loginPass").value;
+                const user = document.getElementById("loginUser").value.trim();
+                const pass = document.getElementById("loginPass").value.trim();
 
-                // Contoh sederhana — ganti sesuai data validasi
                 if (user === "admin" && pass === "123") {
                     localStorage.setItem("isLogin", "true");
                     localStorage.setItem("username", user);
-
-                    document.getElementById("loginOverlay").style.display = "none";
-                    document.getElementById("menu").style.display = "block";
+                    showMenu();
                 }
             }
 
-            // Cek Login Saat Load
-            if (localStorage.getItem("isLogin") === "true") {
+            // TAMPILKAN MENU DAN STATUS
+            function showMenu() {
+                const user = localStorage.getItem("username");
                 document.getElementById("loginOverlay").style.display = "none";
                 document.getElementById("menu").style.display = "block";
+                document.getElementById("statusLogin").innerText = "Status: Login sebagai " + user;
             }
 
-            // Logout
+            // LOGOUT
             function logout() {
                 localStorage.removeItem("isLogin");
                 localStorage.removeItem("username");
                 location.reload();
             }
 
-            // Menu: Buka App2
+            // OPEN APP2
             function gotoApp2() {
-                // Buka App2 di tab *sama* (tidak _blank_)
                 window.location.href = "https://boetepaythea-sudo.github.io/Purchase-Order/";
             }
-        </script>
 
+            // CEK LOGIN SAAT HALAMAN DIBUKA
+            document.addEventListener("DOMContentLoaded", function () {
+                if (localStorage.getItem("isLogin") === "true") {
+                    showMenu();
+                } else {
+                    document.getElementById("loginOverlay").style.display = "block";
+                }
+            });
+        </script>
     </body>
 
 </html>
