@@ -1528,8 +1528,8 @@
                 // Reset counter jika login berhasil
                 loginAttempts = 0;
 
-                sessionStorage.setItem("isLogin", "true");
-                sessionStorage.setItem("username", user);
+               localStorage.setItem("isLogin", "true");
+                localStorage.setItem("username", user);
 
                 error.style.display = "none";
                 document.getElementById("loginOverlay").style.display = "none";
@@ -1553,7 +1553,8 @@
 
         // ===== LOGOUT =====
         function logout() {
-            sessionStorage.clear();
+            localStorage.removeItem("isLogin");
+            localStorage.removeItem("username");
             location.reload();
         }
 
