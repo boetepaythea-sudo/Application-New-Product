@@ -1580,19 +1580,18 @@
         }
 
         // ===== CEK LOGIN SAAT LOAD =====
-        document.addEventListener("DOMContentLoaded", function () {
-            const isLogin = sessionStorage.getItem("isLogin");
-            const loginOverlay = document.getElementById("loginOverlay");
-            const welcomeOverlay = document.getElementById("welcomeOverlay");
+         document.addEventListener("DOMContentLoaded", function () {
+            const isLogin = localStorage.getItem("isLogin");
 
-            welcomeOverlay.style.display = "none";
+            const loginOverlay = document.getElementById("loginOverlay");
+            const menu = document.getElementById("menu");
 
             if (isLogin === "true") {
                 loginOverlay.style.display = "none";
-                document.getElementById("menu").style.display = "flex";
+                menu.style.display = "flex";
             } else {
                 loginOverlay.style.display = "flex";
-                document.getElementById("menu").style.display = "none";
+                menu.style.display = "none";
             }
         });
 
