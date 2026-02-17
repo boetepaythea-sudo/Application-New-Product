@@ -10364,7 +10364,6 @@
             const itemDetail = document.getElementById("itemDetail");
             const previousButton = document.getElementById("previousButton");
             const nextButton = document.getElementById("nextButton");
-            const backButton = document.getElementById("backButton");
             const KodeSearch = document.getElementById("KodeSearch");
 
             /* ================= INIT ================= */
@@ -10495,6 +10494,21 @@
             };
 
             /* ================= RESET ================= */
+
+            function resetGallery() {
+                currentMode = "menu";
+                filteredItems = [];
+                currentIndex = 0;
+
+                itemDetail.style.display = "none";
+
+                previousButton.disabled = true;
+                nextButton.disabled = true;
+
+                kodeSelector.value = "";
+                kategoriSelector.value = "";
+                KodeSearch.value = "";
+            }
 
             function backToApp1() {
                 window.location.href = "https://boetepaythea-sudo.github.io/Inspection-App/";
